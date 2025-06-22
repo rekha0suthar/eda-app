@@ -22,6 +22,15 @@ function App() {
     year: '',
   });
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('Brand');
+
+  const tabs = [
+    'Brand',
+    'Pack Type',
+    'PPG',
+    'Brand X Pack Type X PPC',
+    'Correlation and Trends',
+  ];
 
   useEffect(() => {
     loadFilterOptions();
@@ -45,6 +54,22 @@ function App() {
     }));
   };
 
+  const handleReset = () => {
+    setFilters({
+      market: '',
+      channel: '',
+      region: '',
+      category: '',
+      subcategory: '',
+      brand: '',
+      variant: '',
+      pack_type: '',
+      ppg: '',
+      pack_size: '',
+      year: '',
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -60,10 +85,33 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container mx-auto px-4 py-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Consumer Surplus Factor (CSF)
+          </h2>
+          <div className="mt-4 border-b">
+            <nav className="-mb-px flex flex-wrap space-x-8">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab
+                      ? 'border-yellow-500 text-yellow-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
         <FilterPanel
           filterOptions={filterOptions}
           filters={filters}
           onFilterChange={handleFilterChange}
+          onReset={handleReset}
         />
         <ChartGrid filters={filters} />
       </div>

@@ -4,14 +4,14 @@ const FilterDropdown = ({ label, value, onChange, options, filterKey }) => (
   <div className="w-full sm:w-1/2 md:w-1/4 lg:w-1/6 px-2 mb-4">
     <label
       htmlFor={filterKey}
-      className="block text-sm font-medium text-gray-700"
+      className="block text-sm font-medium text-gray-700 mb-1"
     >
       {label}
     </label>
     <select
       id={filterKey}
       name={filterKey}
-      className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+      className="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
       value={value}
       onChange={onChange}
     >
@@ -25,7 +25,7 @@ const FilterDropdown = ({ label, value, onChange, options, filterKey }) => (
   </div>
 );
 
-const FilterPanel = ({ filterOptions, filters, onFilterChange }) => {
+const FilterPanel = ({ filterOptions, filters, onFilterChange, onReset }) => {
   if (!filterOptions) return null;
 
   const filterConfigs = [
@@ -55,8 +55,8 @@ const FilterPanel = ({ filterOptions, filters, onFilterChange }) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-6">
-      <div className="flex flex-wrap -mx-2">
+    <div className="mb-6">
+      <div className="flex flex-wrap -mx-2 items-end">
         {filterConfigs.map((config) => (
           <FilterDropdown
             key={config.key}
@@ -67,6 +67,14 @@ const FilterPanel = ({ filterOptions, filters, onFilterChange }) => {
             options={config.options || []}
           />
         ))}
+        <div className="w-full sm:w-auto px-2 mb-4">
+          <button
+            onClick={onReset}
+            className="bg-primary-600 text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-md text-sm px-5 py-2.5 text-center w-full"
+          >
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );

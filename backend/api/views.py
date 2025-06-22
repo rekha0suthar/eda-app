@@ -5,6 +5,7 @@ from django.db.models import Sum, Avg
 from django.db.models.functions import TruncMonth
 import pandas as pd
 import numpy as np
+import calendar
 from .models import RetailData
 from .serializers import RetailDataSerializer, FilterOptionsSerializer, ChartDataSerializer, StackedChartDataSerializer
 
@@ -112,7 +113,7 @@ def sales_by_year(request):
     for i, brand in enumerate(brands):
         datasets.append({
             'label': brand,
-            'data': [float(value) / 1000000 for value in pivot_df[brand]],
+            'data': [float(value) for value in pivot_df[brand]],
             'backgroundColor': colors[i % len(colors)],
         })
 
@@ -140,7 +141,7 @@ def volume_by_year(request):
     for i, brand in enumerate(brands):
         datasets.append({
             'label': brand,
-            'data': [float(value) / 1000000 for value in pivot_df[brand]],
+            'data': [float(value) for value in pivot_df[brand]],
             'backgroundColor': colors[i % len(colors)],
         })
 
@@ -157,8 +158,8 @@ def monthly_trend(request):
         total_sales=Sum('sales_value')
     ).order_by('year', 'month')
     
-    labels = [f"{item['year']}-{item['month']}" for item in data]
-    sales_data = [float(item['total_sales']) / 1000000 for item in data]
+    labels = [f"{calendar.month_abbr[item['month']]} {item['year']}" for item in data]
+    sales_data = [float(item['total_sales']) for item in data]
     
     chart_data = {
         'labels': labels,
@@ -220,7 +221,7 @@ def year_wise_sales_vertical(request):
     for i, year in enumerate(years):
         datasets.append({
             'label': str(year),
-            'data': [float(value) / 1000000 for value in pivot_df[year]],
+            'data': [float(value) for value in pivot_df[year]],
             'backgroundColor': colors[i % len(colors)],
         })
 
