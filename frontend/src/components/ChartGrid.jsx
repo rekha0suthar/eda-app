@@ -28,6 +28,8 @@ ChartJS.register(
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
+const formatMillion = (val) => `${parseFloat(val / 1000000).toFixed(1)} M`;
+
 const ChartGrid = ({ filters }) => {
   const [salesByYear, setSalesByYear] = useState(null);
   const [volumeByYear, setVolumeByYear] = useState(null);
@@ -103,9 +105,9 @@ const ChartGrid = ({ filters }) => {
                 tooltip: {
                   callbacks: {
                     label: function (context) {
-                      return `${
-                        context.dataset.label
-                      }: ${context.parsed.x.toFixed(2)} M`;
+                      return `${context.dataset.label}: ${formatMillion(
+                        context.parsed.x
+                      )}`;
                     },
                   },
                 },
@@ -115,8 +117,10 @@ const ChartGrid = ({ filters }) => {
                   stacked: true,
                   ticks: {
                     callback: function (value) {
-                      return `${value} M`;
+                      return formatMillion(value);
                     },
+                    stepSize: 5,
+                    maxTicksLimit: 10,
                   },
                 },
                 y: { stacked: true },
@@ -154,9 +158,9 @@ const ChartGrid = ({ filters }) => {
                 tooltip: {
                   callbacks: {
                     label: function (context) {
-                      return `${
-                        context.dataset.label
-                      }: ${context.parsed.x.toFixed(2)} M`;
+                      return `${context.dataset.label}: ${formatMillion(
+                        context.parsed.x
+                      )}`;
                     },
                   },
                 },
@@ -166,8 +170,10 @@ const ChartGrid = ({ filters }) => {
                   stacked: true,
                   ticks: {
                     callback: function (value) {
-                      return `${value} M`;
+                      return formatMillion(value);
                     },
+                    stepSize: 1,
+                    maxTicksLimit: 10,
                   },
                 },
                 y: { stacked: true },
@@ -205,9 +211,9 @@ const ChartGrid = ({ filters }) => {
                 tooltip: {
                   callbacks: {
                     label: function (context) {
-                      return `${
-                        context.dataset.label
-                      }: ${context.parsed.y.toFixed(2)} M`;
+                      return `${context.dataset.label}: ${formatMillion(
+                        context.parsed.y
+                      )}`;
                     },
                   },
                 },
@@ -216,8 +222,10 @@ const ChartGrid = ({ filters }) => {
                 y: {
                   ticks: {
                     callback: function (value) {
-                      return `${value} M`;
+                      return formatMillion(value);
                     },
+                    stepSize: 5,
+                    maxTicksLimit: 10,
                   },
                 },
               },
@@ -253,9 +261,7 @@ const ChartGrid = ({ filters }) => {
                 tooltip: {
                   callbacks: {
                     label: function (context) {
-                      return `${
-                        context.dataset.label
-                      }: ${context.parsed.y.toFixed(2)} M`;
+                      return `Sales: ${formatMillion(context.parsed.y)}`;
                     },
                   },
                 },
@@ -264,8 +270,10 @@ const ChartGrid = ({ filters }) => {
                 y: {
                   ticks: {
                     callback: function (value) {
-                      return `${value} M`;
+                      return formatMillion(value);
                     },
+                    stepSize: 5,
+                    maxTicksLimit: 10,
                   },
                 },
               },
