@@ -1,5 +1,29 @@
 # EDA (Exploratory Data Analysis) App
 
+## Project Summary
+
+**Tech Stack:**
+
+- **Frontend:** React (JavaScript), Chart.js (react-chartjs-2), Tailwind CSS, Axios
+- **Backend:** Django (Django REST Framework), Pandas, SQLite
+
+**Thought Process:**
+
+- Prioritized a clean separation of concerns and maintainability using SOLID principles.
+- Chose React for a responsive, interactive UI and Django for robust, rapid backend development.
+- Used Chart.js for flexible, beautiful data visualizations.
+- Designed the backend to be stateless and API-driven, with all business logic in service layers.
+- Ensured the frontend is modular: each chart is a self-contained component, and API logic is abstracted.
+
+**Key Decisions:**
+
+- **SOLID Architecture:** All business/data logic is in backend `services.py`; views are thin controllers. Frontend charts are decoupled, reusable, and only receive raw data.
+- **Data Loading:** Data is loaded via script or admin, and the app is robust to database resets.
+- **Responsiveness:** The UI is mobile-friendly and accessible, with horizontal scroll for tabs and flexible layouts.
+- **Extensibility:** Adding new charts or filters is straightforward due to modular design.
+
+---
+
 A comprehensive data exploration dashboard built with a React frontend and Django backend for analyzing FMCG retail data.
 
 ## Features

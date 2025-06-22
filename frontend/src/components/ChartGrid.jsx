@@ -63,7 +63,7 @@ const ChartGrid = ({ filters }) => {
         {volumeByYear && <VolumeBarChart apiData={volumeByYear} />}
       </div>
       <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Value</h3>
+        <h3 className="text-lg font-semibold mb-2">Year-wise Sales Value</h3>
         {yearWiseSalesVertical && (
           <YearlyValueChart apiData={yearWiseSalesVertical} />
         )}
