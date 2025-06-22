@@ -9,16 +9,10 @@ class RetailDataSerializer(serializers.ModelSerializer):
 
 class FilterOptionsSerializer(serializers.Serializer):
     """Serializer for filter options"""
-    markets = serializers.ListField(child=serializers.CharField())
     channels = serializers.ListField(child=serializers.CharField())
-    regions = serializers.ListField(child=serializers.CharField())
-    categories = serializers.ListField(child=serializers.CharField())
-    subcategories = serializers.ListField(child=serializers.CharField())
     brands = serializers.ListField(child=serializers.CharField())
-    variants = serializers.ListField(child=serializers.CharField())
     pack_types = serializers.ListField(child=serializers.CharField())
     ppgs = serializers.ListField(child=serializers.CharField())
-    pack_sizes = serializers.ListField(child=serializers.CharField())
     years = serializers.ListField(child=serializers.IntegerField())
 
 class ChartDataSerializer(serializers.Serializer):

@@ -18,38 +18,20 @@ def get_chart_colors():
 def get_filtered_queryset(request):
     """Helper to get filtered queryset based on request params"""
     queryset = RetailData.objects.all()
-    market = request.GET.get('market')
     channel = request.GET.get('channel')
-    region = request.GET.get('region')
-    category = request.GET.get('category')
-    subcategory = request.GET.get('subcategory')
     brand = request.GET.get('brand')
-    variant = request.GET.get('variant')
     pack_type = request.GET.get('pack_type')
     ppg = request.GET.get('ppg')
-    pack_size = request.GET.get('pack_size')
     year = request.GET.get('year')
 
-    if market:
-        queryset = queryset.filter(market=market)
     if channel:
         queryset = queryset.filter(channel=channel)
-    if region:
-        queryset = queryset.filter(region=region)
-    if category:
-        queryset = queryset.filter(category=category)
-    if subcategory:
-        queryset = queryset.filter(subcategory=subcategory)
     if brand:
         queryset = queryset.filter(brand=brand)
-    if variant:
-        queryset = queryset.filter(variant=variant)
     if pack_type:
         queryset = queryset.filter(pack_type=pack_type)
     if ppg:
         queryset = queryset.filter(ppg=ppg)
-    if pack_size:
-        queryset = queryset.filter(pack_size=pack_size)
     if year:
         queryset = queryset.filter(year=int(year))
     return queryset
@@ -64,29 +46,17 @@ def get_data(request):
 @api_view(['GET'])
 def get_filters(request):
     """Get available filter options"""
-    markets = RetailData.objects.values_list('market', flat=True).distinct().order_by('market')
     channels = RetailData.objects.values_list('channel', flat=True).distinct().order_by('channel')
-    regions = RetailData.objects.values_list('region', flat=True).distinct().order_by('region')
-    categories = RetailData.objects.values_list('category', flat=True).distinct().order_by('category')
-    subcategories = RetailData.objects.values_list('subcategory', flat=True).distinct().order_by('subcategory')
     brands = RetailData.objects.values_list('brand', flat=True).distinct().order_by('brand')
-    variants = RetailData.objects.values_list('variant', flat=True).distinct().order_by('variant')
     pack_types = RetailData.objects.values_list('pack_type', flat=True).distinct().order_by('pack_type')
     ppgs = RetailData.objects.values_list('ppg', flat=True).distinct().order_by('ppg')
-    pack_sizes = RetailData.objects.values_list('pack_size', flat=True).distinct().order_by('pack_size')
     years = RetailData.objects.values_list('year', flat=True).distinct().order_by('year')
     
     data = {
-        'markets': list(markets),
         'channels': list(channels),
-        'regions': list(regions),
-        'categories': list(categories),
-        'subcategories': list(subcategories),
         'brands': list(brands),
-        'variants': list(variants),
         'pack_types': list(pack_types),
         'ppgs': list(ppgs),
-        'pack_sizes': list(pack_sizes),
         'years': list(years)
     }
     
@@ -173,31 +143,32 @@ def monthly_trend(request):
 
 @api_view(['GET'])
 def market_share(request):
-    """Get market share data for pie/donut chart"""
+    """Get market share data for pie/donut chart by sales or volume"""
     queryset = get_filtered_queryset(request)
-    
-    # Get market share by brand
-    data = queryset.values('brand').annotate(
-        total_sales=Sum('sales_value'),
-        total_volume=Sum('volume')
-    ).order_by('-total_sales')
-    
+    metric = request.GET.get('metric', 'sales')  # Default to sales
+
+    if metric == 'volume':
+        annotation = {'total_volume': Sum('volume')}
+        order_by_field = '-total_volume'
+        data_field = 'total_volume'
+    else:  # Default to sales
+        annotation = {'total_sales': Sum('sales_value')}
+        order_by_field = '-total_sales'
+        data_field = 'total_sales'
+
+    data = queryset.values('brand').annotate(**annotation).order_by(order_by_field)
+
     labels = [item['brand'] for item in data]
-    sales_data = [float(item['total_sales']) for item in data]
-    
-    # Generate colors for pie chart
-    colors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
-    ]
-    
+    chart_values = [float(item[data_field]) for item in data]
+    colors = get_chart_colors()
+
     chart_data = {
         'labels': labels,
-        'data': sales_data,
+        'data': chart_values,
         'backgroundColor': colors[:len(labels)],
-        'borderColor': colors[:len(labels)]
+        'borderColor': ['#FFFFFF'] * len(labels)
     }
-    
+
     serializer = ChartDataSerializer(chart_data)
     return Response(serializer.data)
 

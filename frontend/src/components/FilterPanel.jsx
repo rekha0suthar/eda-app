@@ -11,7 +11,7 @@ const FilterDropdown = ({ label, value, onChange, options, filterKey }) => (
     <select
       id={filterKey}
       name={filterKey}
-      className="bg-white text-gray-900 text-sm rounded-md focus:ring-blue-500 block w-full p-2.5 shadow-sm"
+      className="bg-white text-gray-900 text-base rounded-md focus:ring-blue-500 block w-full p-2.5 shadow-sm pr-8"
       value={value}
       onChange={onChange}
     >
