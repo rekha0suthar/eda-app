@@ -9,20 +9,15 @@ const API_BASE_URL = 'http://localhost:8000/api';
 function App() {
   const [filterOptions, setFilterOptions] = useState(null);
   const [filters, setFilters] = useState({
-    market: '',
     channel: '',
-    region: '',
-    category: '',
-    subcategory: '',
     brand: '',
-    variant: '',
     pack_type: '',
     ppg: '',
-    pack_size: '',
     year: '',
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Brand');
+  const [activeMainTab, setActiveMainTab] = useState('Trends');
 
   const tabs = [
     'Brand',
@@ -31,6 +26,8 @@ function App() {
     'Brand X Pack Type X PPC',
     'Correlation and Trends',
   ];
+
+  const mainTabs = ['Trends', 'CSF Results', 'Scenario Planning'];
 
   useEffect(() => {
     loadFilterOptions();
@@ -56,16 +53,10 @@ function App() {
 
   const handleReset = () => {
     setFilters({
-      market: '',
       channel: '',
-      region: '',
-      category: '',
-      subcategory: '',
       brand: '',
-      variant: '',
       pack_type: '',
       ppg: '',
-      pack_size: '',
       year: '',
     });
   };
@@ -85,11 +76,28 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
+        <div className="flex flex-wrap justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             Consumer Surplus Factor (CSF)
           </h2>
-          <div className="mt-4 border-b">
+          <div className="bg-gray-200 rounded-full p-1 flex space-x-1">
+            {mainTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveMainTab(tab)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-full ${
+                  activeMainTab === tab
+                    ? 'bg-white text-gray-800 shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-6">
+          <div className="border-b">
             <nav className="-mb-px flex flex-wrap space-x-8">
               {tabs.map((tab) => (
                 <button

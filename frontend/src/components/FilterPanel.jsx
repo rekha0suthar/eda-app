@@ -11,7 +11,7 @@ const FilterDropdown = ({ label, value, onChange, options, filterKey }) => (
     <select
       id={filterKey}
       name={filterKey}
-      className="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+      className="bg-white text-gray-900 text-sm rounded-md focus:ring-blue-500 block w-full p-2.5 shadow-sm"
       value={value}
       onChange={onChange}
     >
@@ -29,29 +29,15 @@ const FilterPanel = ({ filterOptions, filters, onFilterChange, onReset }) => {
   if (!filterOptions) return null;
 
   const filterConfigs = [
-    { label: 'Market', key: 'market', options: filterOptions.markets },
     { label: 'Channel', key: 'channel', options: filterOptions.channels },
-    { label: 'Region', key: 'region', options: filterOptions.regions },
-    { label: 'Year', key: 'year', options: filterOptions.years },
-    { label: 'Category', key: 'category', options: filterOptions.categories },
-    {
-      label: 'SubCategory',
-      key: 'subcategory',
-      options: filterOptions.subcategories,
-    },
     { label: 'Brand', key: 'brand', options: filterOptions.brands },
-    { label: 'Variant', key: 'variant', options: filterOptions.variants },
     {
       label: 'Pack Type',
       key: 'pack_type',
       options: filterOptions.pack_types,
     },
-    {
-      label: 'Pack Size',
-      key: 'pack_size',
-      options: filterOptions.pack_sizes,
-    },
     { label: 'PPG', key: 'ppg', options: filterOptions.ppgs },
+    { label: 'Year', key: 'year', options: filterOptions.years },
   ];
 
   return (
@@ -70,7 +56,7 @@ const FilterPanel = ({ filterOptions, filters, onFilterChange, onReset }) => {
         <div className="w-full sm:w-auto px-2 mb-4">
           <button
             onClick={onReset}
-            className="bg-primary-600 text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-md text-sm px-5 py-2.5 text-center w-full"
+            className="bg-primary-600 text-white hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-md text-sm px-5 py-2.5 text-center w-full shadow-sm"
           >
             Reset
           </button>
