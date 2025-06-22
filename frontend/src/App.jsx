@@ -9,10 +9,16 @@ const API_BASE_URL = 'http://localhost:8000/api';
 function App() {
   const [filterOptions, setFilterOptions] = useState(null);
   const [filters, setFilters] = useState({
+    market: '',
+    channel: '',
+    region: '',
+    category: '',
+    subcategory: '',
     brand: '',
+    variant: '',
     pack_type: '',
     ppg: '',
-    channel: '',
+    pack_size: '',
     year: '',
   });
   const [loading, setLoading] = useState(true);

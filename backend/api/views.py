@@ -17,20 +17,38 @@ def get_chart_colors():
 def get_filtered_queryset(request):
     """Helper to get filtered queryset based on request params"""
     queryset = RetailData.objects.all()
+    market = request.GET.get('market')
+    channel = request.GET.get('channel')
+    region = request.GET.get('region')
+    category = request.GET.get('category')
+    subcategory = request.GET.get('subcategory')
     brand = request.GET.get('brand')
+    variant = request.GET.get('variant')
     pack_type = request.GET.get('pack_type')
     ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
+    pack_size = request.GET.get('pack_size')
     year = request.GET.get('year')
 
+    if market:
+        queryset = queryset.filter(market=market)
+    if channel:
+        queryset = queryset.filter(channel=channel)
+    if region:
+        queryset = queryset.filter(region=region)
+    if category:
+        queryset = queryset.filter(category=category)
+    if subcategory:
+        queryset = queryset.filter(subcategory=subcategory)
     if brand:
         queryset = queryset.filter(brand=brand)
+    if variant:
+        queryset = queryset.filter(variant=variant)
     if pack_type:
         queryset = queryset.filter(pack_type=pack_type)
     if ppg:
         queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
+    if pack_size:
+        queryset = queryset.filter(pack_size=pack_size)
     if year:
         queryset = queryset.filter(year=int(year))
     return queryset
@@ -45,17 +63,29 @@ def get_data(request):
 @api_view(['GET'])
 def get_filters(request):
     """Get available filter options"""
+    markets = RetailData.objects.values_list('market', flat=True).distinct().order_by('market')
+    channels = RetailData.objects.values_list('channel', flat=True).distinct().order_by('channel')
+    regions = RetailData.objects.values_list('region', flat=True).distinct().order_by('region')
+    categories = RetailData.objects.values_list('category', flat=True).distinct().order_by('category')
+    subcategories = RetailData.objects.values_list('subcategory', flat=True).distinct().order_by('subcategory')
     brands = RetailData.objects.values_list('brand', flat=True).distinct().order_by('brand')
+    variants = RetailData.objects.values_list('variant', flat=True).distinct().order_by('variant')
     pack_types = RetailData.objects.values_list('pack_type', flat=True).distinct().order_by('pack_type')
     ppgs = RetailData.objects.values_list('ppg', flat=True).distinct().order_by('ppg')
-    channels = RetailData.objects.values_list('channel', flat=True).distinct().order_by('channel')
+    pack_sizes = RetailData.objects.values_list('pack_size', flat=True).distinct().order_by('pack_size')
     years = RetailData.objects.values_list('year', flat=True).distinct().order_by('year')
     
     data = {
+        'markets': list(markets),
+        'channels': list(channels),
+        'regions': list(regions),
+        'categories': list(categories),
+        'subcategories': list(subcategories),
         'brands': list(brands),
+        'variants': list(variants),
         'pack_types': list(pack_types),
         'ppgs': list(ppgs),
-        'channels': list(channels),
+        'pack_sizes': list(pack_sizes),
         'years': list(years)
     }
     
@@ -94,7 +124,7 @@ def sales_by_year(request):
 def volume_by_year(request):
     """Get volume data by year and brand for stacked bar chart"""
     queryset = get_filtered_queryset(request)
-    data = queryset.values('year', 'brand').annotate(total_volume=Sum('volume_kg')).order_by('year', 'brand')
+    data = queryset.values('year', 'brand').annotate(total_volume=Sum('volume')).order_by('year', 'brand')
 
     if not data:
         return Response({"labels": [], "datasets": []})
@@ -121,25 +151,7 @@ def volume_by_year(request):
 @api_view(['GET'])
 def monthly_trend(request):
     """Get monthly trend of sales value for line chart"""
-    queryset = RetailData.objects.all()
-    
-    # Apply filters
-    brand = request.GET.get('brand')
-    pack_type = request.GET.get('pack_type')
-    ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
-    year = request.GET.get('year')
-    
-    if brand:
-        queryset = queryset.filter(brand=brand)
-    if pack_type:
-        queryset = queryset.filter(pack_type=pack_type)
-    if ppg:
-        queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
-    if year:
-        queryset = queryset.filter(year=int(year))
+    queryset = get_filtered_queryset(request)
     
     data = queryset.values('year', 'month').annotate(
         total_sales=Sum('sales_value')
@@ -161,30 +173,12 @@ def monthly_trend(request):
 @api_view(['GET'])
 def market_share(request):
     """Get market share data for pie/donut chart"""
-    queryset = RetailData.objects.all()
-    
-    # Apply filters
-    brand = request.GET.get('brand')
-    pack_type = request.GET.get('pack_type')
-    ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
-    year = request.GET.get('year')
-    
-    if brand:
-        queryset = queryset.filter(brand=brand)
-    if pack_type:
-        queryset = queryset.filter(pack_type=pack_type)
-    if ppg:
-        queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
-    if year:
-        queryset = queryset.filter(year=int(year))
+    queryset = get_filtered_queryset(request)
     
     # Get market share by brand
     data = queryset.values('brand').annotate(
         total_sales=Sum('sales_value'),
-        total_volume=Sum('volume_kg')
+        total_volume=Sum('volume')
     ).order_by('-total_sales')
     
     labels = [item['brand'] for item in data]
