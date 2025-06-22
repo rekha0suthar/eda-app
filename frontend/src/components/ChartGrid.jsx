@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,7 +33,6 @@ const ChartGrid = ({ filters }) => {
   const [volumeByYear, setVolumeByYear] = useState(null);
   const [yearWiseSalesVertical, setYearWiseSalesVertical] = useState(null);
   const [monthlyTrend, setMonthlyTrend] = useState(null);
-  const [marketShare, setMarketShare] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,21 +46,18 @@ const ChartGrid = ({ filters }) => {
       const params = Object.fromEntries(
         Object.entries(filters).filter(([_, v]) => v)
       );
-      const [salesRes, volumeRes, verticalRes, trendRes, shareRes] =
-        await Promise.all([
-          axios.get(`${API_BASE_URL}/charts/sales-by-year/`, { params }),
-          axios.get(`${API_BASE_URL}/charts/volume-by-year/`, { params }),
-          axios.get(`${API_BASE_URL}/charts/year-wise-sales-vertical/`, {
-            params,
-          }),
-          axios.get(`${API_BASE_URL}/charts/monthly-trend/`, { params }),
-          axios.get(`${API_BASE_URL}/charts/market-share/`, { params }),
-        ]);
+      const [salesRes, volumeRes, verticalRes, trendRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/charts/sales-by-year/`, { params }),
+        axios.get(`${API_BASE_URL}/charts/volume-by-year/`, { params }),
+        axios.get(`${API_BASE_URL}/charts/year-wise-sales-vertical/`, {
+          params,
+        }),
+        axios.get(`${API_BASE_URL}/charts/monthly-trend/`, { params }),
+      ]);
       setSalesByYear(salesRes.data);
       setVolumeByYear(volumeRes.data);
       setYearWiseSalesVertical(verticalRes.data);
       setMonthlyTrend(trendRes.data);
-      setMarketShare(shareRes.data);
     } catch (error) {
       console.error('Error loading chart data:', error);
     }
@@ -79,87 +75,151 @@ const ChartGrid = ({ filters }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Sales Value by Year (Horizontal Bar)
-        </h3>
+        <h3 className="text-lg font-semibold mb-2">Sales Value (EURO)</h3>
         {salesByYear && (
           <Bar
             data={{
               labels: salesByYear.labels,
-              datasets: [
-                {
-                  label: 'Sales Value',
-                  data: salesByYear.data,
-                  backgroundColor: salesByYear.backgroundColor,
-                  borderColor: salesByYear.borderColor,
-                  borderWidth: 1,
-                },
-              ],
+              datasets: salesByYear.datasets.map((ds) => ({
+                ...ds,
+                borderRadius: 6,
+              })),
             }}
             options={{
               indexAxis: 'y',
               responsive: true,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8,
               plugins: {
-                legend: { display: false },
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                  },
+                },
                 title: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return `${
+                        context.dataset.label
+                      }: ${context.parsed.x.toFixed(2)} M`;
+                    },
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  ticks: {
+                    callback: function (value) {
+                      return `${value} M`;
+                    },
+                  },
+                },
+                y: { stacked: true },
               },
             }}
           />
         )}
       </div>
       <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Volume (kg) by Year (Horizontal Bar)
-        </h3>
+        <h3 className="text-lg font-semibold mb-2">Volume Contribution (KG)</h3>
         {volumeByYear && (
           <Bar
             data={{
               labels: volumeByYear.labels,
-              datasets: [
-                {
-                  label: 'Volume (kg)',
-                  data: volumeByYear.data,
-                  backgroundColor: volumeByYear.backgroundColor,
-                  borderColor: volumeByYear.borderColor,
-                  borderWidth: 1,
-                },
-              ],
+              datasets: volumeByYear.datasets.map((ds) => ({
+                ...ds,
+                borderRadius: 6,
+              })),
             }}
             options={{
               indexAxis: 'y',
               responsive: true,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8,
               plugins: {
-                legend: { display: false },
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                  },
+                },
                 title: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return `${
+                        context.dataset.label
+                      }: ${context.parsed.x.toFixed(2)} M`;
+                    },
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  ticks: {
+                    callback: function (value) {
+                      return `${value} M`;
+                    },
+                  },
+                },
+                y: { stacked: true },
               },
             }}
           />
         )}
       </div>
       <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Year-wise Sales Value (Vertical Bar)
-        </h3>
+        <h3 className="text-lg font-semibold mb-2">Value</h3>
         {yearWiseSalesVertical && (
           <Bar
             data={{
               labels: yearWiseSalesVertical.labels,
-              datasets: [
-                {
-                  label: 'Sales Value',
-                  data: yearWiseSalesVertical.data,
-                  backgroundColor: yearWiseSalesVertical.backgroundColor,
-                  borderColor: yearWiseSalesVertical.borderColor,
-                  borderWidth: 1,
-                },
-              ],
+              datasets: yearWiseSalesVertical.datasets.map((ds) => ({
+                ...ds,
+                borderRadius: 6,
+              })),
             }}
             options={{
               indexAxis: 'x',
               responsive: true,
+              barPercentage: 0.6,
+              categoryPercentage: 0.8,
               plugins: {
-                legend: { display: false },
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                  },
+                },
                 title: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return `${
+                        context.dataset.label
+                      }: ${context.parsed.y.toFixed(2)} M`;
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  ticks: {
+                    callback: function (value) {
+                      return `${value} M`;
+                    },
+                  },
+                },
               },
             }}
           />
@@ -167,7 +227,7 @@ const ChartGrid = ({ filters }) => {
       </div>
       <div className="bg-white rounded-lg shadow p-4">
         <h3 className="text-lg font-semibold mb-2">
-          Monthly Trend of Sales Value (Line)
+          Monthly Trend of Sales Value
         </h3>
         {monthlyTrend && (
           <Line
@@ -190,35 +250,24 @@ const ChartGrid = ({ filters }) => {
               plugins: {
                 legend: { display: false },
                 title: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return `${
+                        context.dataset.label
+                      }: ${context.parsed.y.toFixed(2)} M`;
+                    },
+                  },
+                },
               },
-            }}
-          />
-        )}
-      </div>
-      <div className="bg-white rounded-lg shadow p-4 md:col-span-2">
-        <h3 className="text-lg font-semibold mb-2">Market Share (Pie/Donut)</h3>
-        {marketShare && (
-          <Pie
-            data={{
-              labels: marketShare.labels,
-              datasets: [
-                {
-                  label: 'Market Share',
-                  data: marketShare.data,
-                  backgroundColor: marketShare.backgroundColor,
-                  borderColor: marketShare.borderColor,
-                  borderWidth: 2,
+              scales: {
+                y: {
+                  ticks: {
+                    callback: function (value) {
+                      return `${value} M`;
+                    },
+                  },
                 },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  display: true,
-                  position: 'right',
-                },
-                title: { display: false },
               },
             }}
           />

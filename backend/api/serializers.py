@@ -20,4 +20,15 @@ class ChartDataSerializer(serializers.Serializer):
     labels = serializers.ListField(child=serializers.CharField())
     data = serializers.ListField(child=serializers.FloatField())
     backgroundColor = serializers.ListField(child=serializers.CharField(), required=False)
-    borderColor = serializers.ListField(child=serializers.CharField(), required=False) 
+    borderColor = serializers.ListField(child=serializers.CharField(), required=False)
+
+class ChartDatasetSerializer(serializers.Serializer):
+    """Serializer for a single dataset in a chart"""
+    label = serializers.CharField()
+    data = serializers.ListField(child=serializers.FloatField())
+    backgroundColor = serializers.CharField()
+
+class StackedChartDataSerializer(serializers.Serializer):
+    """Serializer for stacked chart data"""
+    labels = serializers.ListField(child=serializers.CharField())
+    datasets = serializers.ListField(child=ChartDatasetSerializer()) 

@@ -6,20 +6,23 @@ from django.db.models.functions import TruncMonth
 import pandas as pd
 import numpy as np
 from .models import RetailData
-from .serializers import RetailDataSerializer, FilterOptionsSerializer, ChartDataSerializer
+from .serializers import RetailDataSerializer, FilterOptionsSerializer, ChartDataSerializer, StackedChartDataSerializer
 
-@api_view(['GET'])
-def get_data(request):
-    """Get filtered retail data"""
+def get_chart_colors():
+    return [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#C9CBCF'
+    ]
+
+def get_filtered_queryset(request):
+    """Helper to get filtered queryset based on request params"""
     queryset = RetailData.objects.all()
-    
-    # Apply filters
     brand = request.GET.get('brand')
     pack_type = request.GET.get('pack_type')
     ppg = request.GET.get('ppg')
     channel = request.GET.get('channel')
     year = request.GET.get('year')
-    
+
     if brand:
         queryset = queryset.filter(brand=brand)
     if pack_type:
@@ -30,7 +33,12 @@ def get_data(request):
         queryset = queryset.filter(channel=channel)
     if year:
         queryset = queryset.filter(year=int(year))
-    
+    return queryset
+
+@api_view(['GET'])
+def get_data(request):
+    """Get filtered retail data"""
+    queryset = get_filtered_queryset(request)
     serializer = RetailDataSerializer(queryset, many=True)
     return Response(serializer.data)
 
@@ -56,76 +64,58 @@ def get_filters(request):
 
 @api_view(['GET'])
 def sales_by_year(request):
-    """Get sales value data by year for horizontal bar chart"""
-    queryset = RetailData.objects.all()
-    
-    # Apply filters
-    brand = request.GET.get('brand')
-    pack_type = request.GET.get('pack_type')
-    ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
-    
-    if brand:
-        queryset = queryset.filter(brand=brand)
-    if pack_type:
-        queryset = queryset.filter(pack_type=pack_type)
-    if ppg:
-        queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
-    
-    data = queryset.values('year').annotate(
-        total_sales=Sum('sales_value')
-    ).order_by('year')
-    
-    labels = [item['year'] for item in data]
-    sales_data = [float(item['total_sales']) for item in data]
-    
-    chart_data = {
-        'labels': labels,
-        'data': sales_data,
-        'backgroundColor': ['rgba(54, 162, 235, 0.8)'] * len(labels),
-        'borderColor': ['rgba(54, 162, 235, 1)'] * len(labels)
-    }
-    
-    serializer = ChartDataSerializer(chart_data)
+    """Get sales value data by year and brand for stacked bar chart"""
+    queryset = get_filtered_queryset(request)
+    data = queryset.values('year', 'brand').annotate(total_sales=Sum('sales_value')).order_by('year', 'brand')
+
+    if not data:
+        return Response({"labels": [], "datasets": []})
+
+    df = pd.DataFrame(list(data))
+    pivot_df = df.pivot(index='year', columns='brand', values='total_sales').fillna(0)
+
+    years = [str(year) for year in pivot_df.index]
+    brands = pivot_df.columns
+    colors = get_chart_colors()
+
+    datasets = []
+    for i, brand in enumerate(brands):
+        datasets.append({
+            'label': brand,
+            'data': [float(value) / 1000000 for value in pivot_df[brand]],
+            'backgroundColor': colors[i % len(colors)],
+        })
+
+    chart_data = {'labels': years, 'datasets': datasets}
+    serializer = StackedChartDataSerializer(chart_data)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def volume_by_year(request):
-    """Get volume data by year for horizontal bar chart"""
-    queryset = RetailData.objects.all()
-    
-    # Apply filters
-    brand = request.GET.get('brand')
-    pack_type = request.GET.get('pack_type')
-    ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
-    
-    if brand:
-        queryset = queryset.filter(brand=brand)
-    if pack_type:
-        queryset = queryset.filter(pack_type=pack_type)
-    if ppg:
-        queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
-    
-    data = queryset.values('year').annotate(
-        total_volume=Sum('volume_kg')
-    ).order_by('year')
-    
-    labels = [item['year'] for item in data]
-    volume_data = [float(item['total_volume']) for item in data]
-    
-    chart_data = {
-        'labels': labels,
-        'data': volume_data,
-        'backgroundColor': ['rgba(75, 192, 192, 0.8)'] * len(labels),
-        'borderColor': ['rgba(75, 192, 192, 1)'] * len(labels)
-    }
-    
-    serializer = ChartDataSerializer(chart_data)
+    """Get volume data by year and brand for stacked bar chart"""
+    queryset = get_filtered_queryset(request)
+    data = queryset.values('year', 'brand').annotate(total_volume=Sum('volume_kg')).order_by('year', 'brand')
+
+    if not data:
+        return Response({"labels": [], "datasets": []})
+
+    df = pd.DataFrame(list(data))
+    pivot_df = df.pivot(index='year', columns='brand', values='total_volume').fillna(0)
+
+    years = [str(year) for year in pivot_df.index]
+    brands = pivot_df.columns
+    colors = get_chart_colors()
+
+    datasets = []
+    for i, brand in enumerate(brands):
+        datasets.append({
+            'label': brand,
+            'data': [float(value) / 1000000 for value in pivot_df[brand]],
+            'backgroundColor': colors[i % len(colors)],
+        })
+
+    chart_data = {'labels': years, 'datasets': datasets}
+    serializer = StackedChartDataSerializer(chart_data)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -156,7 +146,7 @@ def monthly_trend(request):
     ).order_by('year', 'month')
     
     labels = [f"{item['year']}-{item['month']}" for item in data]
-    sales_data = [float(item['total_sales']) for item in data]
+    sales_data = [float(item['total_sales']) / 1000000 for item in data]
     
     chart_data = {
         'labels': labels,
@@ -218,37 +208,28 @@ def market_share(request):
 
 @api_view(['GET'])
 def year_wise_sales_vertical(request):
-    """Get year-wise sales value for vertical bar chart"""
-    queryset = RetailData.objects.all()
-    
-    # Apply filters
-    brand = request.GET.get('brand')
-    pack_type = request.GET.get('pack_type')
-    ppg = request.GET.get('ppg')
-    channel = request.GET.get('channel')
-    
-    if brand:
-        queryset = queryset.filter(brand=brand)
-    if pack_type:
-        queryset = queryset.filter(pack_type=pack_type)
-    if ppg:
-        queryset = queryset.filter(ppg=ppg)
-    if channel:
-        queryset = queryset.filter(channel=channel)
-    
-    data = queryset.values('year').annotate(
-        total_sales=Sum('sales_value')
-    ).order_by('year')
-    
-    labels = [item['year'] for item in data]
-    sales_data = [float(item['total_sales']) for item in data]
-    
-    chart_data = {
-        'labels': labels,
-        'data': sales_data,
-        'backgroundColor': ['rgba(153, 102, 255, 0.8)'] * len(labels),
-        'borderColor': ['rgba(153, 102, 255, 1)'] * len(labels)
-    }
-    
-    serializer = ChartDataSerializer(chart_data)
+    """Get year-wise sales value by brand for vertical bar chart"""
+    queryset = get_filtered_queryset(request)
+    data = queryset.values('brand', 'year').annotate(total_sales=Sum('sales_value')).order_by('brand', 'year')
+
+    if not data:
+        return Response({"labels": [], "datasets": []})
+
+    df = pd.DataFrame(list(data))
+    pivot_df = df.pivot(index='brand', columns='year', values='total_sales').fillna(0)
+
+    brands = pivot_df.index.tolist()
+    years = pivot_df.columns.tolist()
+    colors = get_chart_colors()
+
+    datasets = []
+    for i, year in enumerate(years):
+        datasets.append({
+            'label': str(year),
+            'data': [float(value) / 1000000 for value in pivot_df[year]],
+            'backgroundColor': colors[i % len(colors)],
+        })
+
+    chart_data = {'labels': brands, 'datasets': datasets}
+    serializer = StackedChartDataSerializer(chart_data)
     return Response(serializer.data) 
