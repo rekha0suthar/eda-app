@@ -1,6 +1,6 @@
 # EDA (Exploratory Data Analysis) App
 
-A comprehensive data exploration dashboard built with React frontend and Django backend for analyzing FMCG retail data.
+A comprehensive data exploration dashboard built with a React frontend and Django backend for analyzing FMCG retail data.
 
 ## Features
 
@@ -12,12 +12,13 @@ A comprehensive data exploration dashboard built with React frontend and Django 
   - Pie/Donut charts for Market Share analysis
 - **Real-time Data Exploration**: Filter and explore data with instant visual updates
 - **Responsive Design**: Clean, modern UI that works on all devices
+- **SOLID Architecture**: Modular, maintainable codebase with clear separation of concerns (see below)
 
 ## Tech Stack
 
 ### Frontend
 
-- React 18 with TypeScript
+- React 18 (JavaScript)
 - Chart.js with react-chartjs-2
 - Tailwind CSS for styling
 - Axios for API calls
@@ -34,9 +35,14 @@ A comprehensive data exploration dashboard built with React frontend and Django 
 eda-app/
 ├── frontend/          # React application
 ├── backend/           # Django application
-├── data/             # Dataset files
+├── data/              # Dataset files
 └── README.md
 ```
+
+## SOLID Architecture
+
+- **Frontend**: Each chart is a self-contained component. API logic is abstracted. Layout and state are separated.
+- **Backend**: Views only handle request/response. All business logic is in `services.py`.
 
 ## Setup Instructions
 
@@ -49,7 +55,10 @@ eda-app/
    - Linux/Mac: `source venv/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
 5. Run migrations: `python manage.py migrate`
-6. Start server: `python manage.py runserver`
+6. **Load your data** (if you deleted `db.sqlite3`):
+   - If you have a script: `python load_data.py`
+   - Or use Django admin/fixtures as needed
+7. Start server: `python manage.py runserver`
 
 ### Frontend Setup
 
@@ -72,7 +81,6 @@ eda-app/
 2. Open browser and navigate to `http://localhost:3000`
 3. Use the filters to explore different data segments
 4. Interact with charts for detailed insights
-5. Export data or charts as needed
 
 ## Data Schema
 
@@ -86,3 +94,10 @@ The app works with FMCG retail data containing:
 - Channel
 - Year
 - Month
+
+## Troubleshooting
+
+- **No data in charts?**
+  - If you deleted `db.sqlite3`, you must re-run migrations and reload your data (see Backend Setup above).
+- **Chart errors?**
+  - Ensure all Chart.js components are registered in `frontend/src/index.jsx`.
