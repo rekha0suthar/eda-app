@@ -10,6 +10,7 @@ import VolumeBarChart from './charts/VolumeBarChart';
 import YearlyValueChart from './charts/YearlyValueChart';
 import MonthlyTrendChart from './charts/MonthlyTrendChart';
 import MarketShareChart from './charts/MarketShareChart';
+import ChartWrapper from './ChartWrapper';
 
 const ChartGrid = ({ filters }) => {
   const [salesByYear, setSalesByYear] = useState(null);
@@ -54,26 +55,20 @@ const ChartGrid = ({ filters }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Sales Value (EURO)</h3>
+      <ChartWrapper title="Sales Value (EURO)">
         {salesByYear && <SalesBarChart apiData={salesByYear} />}
-      </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Volume Contribution (KG)</h3>
+      </ChartWrapper>
+      <ChartWrapper title="Volume Contribution (KG)">
         {volumeByYear && <VolumeBarChart apiData={volumeByYear} />}
-      </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Year-wise Sales Value</h3>
+      </ChartWrapper>
+      <ChartWrapper title="Year-wise Sales Value">
         {yearWiseSalesVertical && (
           <YearlyValueChart apiData={yearWiseSalesVertical} />
         )}
-      </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Monthly Trend of Sales Value
-        </h3>
+      </ChartWrapper>
+      <ChartWrapper title="Monthly Trend of Sales Value">
         {monthlyTrend && <MonthlyTrendChart apiData={monthlyTrend} />}
-      </div>
+      </ChartWrapper>
       <MarketShareChart filters={filters} />
     </div>
   );
