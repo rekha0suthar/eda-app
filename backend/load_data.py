@@ -38,43 +38,14 @@ def load_data():
     print("Preparing data for loading...")
     for _, row in df.iterrows():
         records.append(RetailData(
-            market=row['Market'],
             channel=row['Channel'],
-            region=row['Region'],
-            category=row['Category'],
-            subcategory=row['SubCategory'],
             brand=row['Brand'],
-            variant=row['Variant'],
             pack_type=row['PackType'],
             ppg=row['PPG'],
-            pack_size=row['PackSize'],
             year=row['Year'],
             month=row['Month'],
-            week=row['Week'],
-            date=datetime.strptime(row['Date'], '%d-%m-%Y %H:%M'),
-            br_cat_id=row['BrCatId'],
             sales_value=row['SalesValue'],
-            volume=row['Volume'],
-            volume_units=row['VolumeUnits'],
-            d1=row.get('D1'),
-            d2=row.get('D2'),
-            d3=row.get('D3'),
-            d4=row.get('D4'),
-            d5=row.get('D5'),
-            d6=row.get('D6'),
-            av1=row.get('AV1'),
-            av2=row.get('AV2'),
-            av3=row.get('AV3'),
-            av4=row.get('AV4'),
-            av5=row.get('AV5'),
-            av6=row.get('AV6'),
-            ev1=row.get('EV1'),
-            ev2=row.get('EV2'),
-            ev3=row.get('EV3'),
-            ev4=row.get('EV4'),
-            ev5=row.get('EV5'),
-            ev6=row.get('EV6'),
-            prep_date=datetime.strptime(row['PrepDate'], '%d-%m-%Y %H:%M')
+            volume=row['Volume']
         ))
 
     # Bulk create records
