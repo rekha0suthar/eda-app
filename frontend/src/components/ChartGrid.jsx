@@ -19,30 +19,30 @@ const ChartGrid = ({ filters }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchAllCharts = async () => {
+      setLoading(true);
+      try {
+        const params = Object.fromEntries(
+          Object.entries(filters).filter(([_, v]) => v)
+        );
+        const [salesRes, volumeRes, verticalRes, trendRes] = await Promise.all([
+          fetchSalesByYear(params),
+          fetchVolumeByYear(params),
+          fetchYearlyValue(params),
+          fetchMonthlyTrend(params),
+        ]);
+        setSalesByYear(salesRes.data);
+        setVolumeByYear(volumeRes.data);
+        setYearWiseSalesVertical(verticalRes.data);
+        setMonthlyTrend(trendRes.data);
+      } catch (error) {
+        console.error('Error loading chart data:', error);
+      }
+      setLoading(false);
+    };
+
     fetchAllCharts();
   }, [filters]);
-
-  const fetchAllCharts = async () => {
-    setLoading(true);
-    try {
-      const params = Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v)
-      );
-      const [salesRes, volumeRes, verticalRes, trendRes] = await Promise.all([
-        fetchSalesByYear(params),
-        fetchVolumeByYear(params),
-        fetchYearlyValue(params),
-        fetchMonthlyTrend(params),
-      ]);
-      setSalesByYear(salesRes.data);
-      setVolumeByYear(volumeRes.data);
-      setYearWiseSalesVertical(verticalRes.data);
-      setMonthlyTrend(trendRes.data);
-    } catch (error) {
-      console.error('Error loading chart data:', error);
-    }
-    setLoading(false);
-  };
 
   if (loading) {
     return (
