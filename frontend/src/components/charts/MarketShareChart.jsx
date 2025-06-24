@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { fetchMarketShare } from '../../api';
-
-const formatMillion = (val) => `${parseFloat(val / 1000000).toFixed(1)} M`;
+import { formatMillion } from '../../util';
 
 const MarketShareChart = ({ filters }) => {
   const [marketShare, setMarketShare] = useState(null);

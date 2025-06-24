@@ -1,7 +1,6 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-
-const formatMillion = (val) => `${parseFloat(val / 1000000).toFixed(1)} M`;
+import { formatMillion } from '../../util';
 
 const MonthlyTrendChart = ({ apiData }) => {
   if (!apiData) return null;

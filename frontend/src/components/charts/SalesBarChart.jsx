@@ -1,7 +1,6 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-
-const formatMillion = (val) => `${parseFloat(val / 1000000).toFixed(1)} M`;
+import { formatMillion } from '../../util';
 
 const SalesBarChart = ({ apiData }) => {
   if (!apiData) return null;
