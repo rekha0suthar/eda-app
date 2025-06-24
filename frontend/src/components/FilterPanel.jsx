@@ -1,4 +1,3 @@
-import React from 'react';
 import FilterDropdown from './FilterDropdown';
 
 const FilterPanel = ({ filters, setFilters, filterOptions }) => {
